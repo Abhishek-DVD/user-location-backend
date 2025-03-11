@@ -6,6 +6,7 @@ const authRouter = require("./src/routes/auth");
 const cookieParser = require("cookie-parser");
 const locationRouter = require("./src/routes/location");
 const adminRouter = require("./src/routes/admin");
+const profileRouter = require("./src/routes/profile");
 
 const app = express();
 dotenv.config();
@@ -13,8 +14,6 @@ dotenv.config();
 app.use(cors({
     origin : ["http://localhost:5173"],
     credentials : true,
-    methods: ["GET", "POST", "PUT", "DELETE", "PATCH", "OPTIONS"],
-    allowedHeaders: ["Authorization", "X-CSRF-Token", "X-Requested-With", "Accept", "Accept-Version", "Content-Length", "Content-MD5", "Content-Type", "Date", "X-Api-Version"],
 }));
 
 app.use(express.json());
@@ -23,6 +22,7 @@ app.use(cookieParser());
 app.use("/",authRouter);
 app.use("/",locationRouter);
 app.use("/",adminRouter);
+app.use("/",profileRouter);
 
 connectDb().then(()=>{
     console.log("Database connected.")

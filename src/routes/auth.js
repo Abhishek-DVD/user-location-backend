@@ -84,4 +84,16 @@ authRouter.post("/admin/login",async(req,res)=>{
     }
 })
 
+authRouter.post("/logout",async(req,res)=>{
+    console.log(res.user);
+    res.cookie("token",null,{
+        expires:new Date(Date.now()),
+    })
+    res.cookie("adminToken",null,{
+        expires:new Date(Date.now()),
+    })
+    res.send();
+})
+
+
 module.exports = authRouter;
