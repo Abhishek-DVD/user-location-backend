@@ -22,12 +22,12 @@ const userAuth = async (req,res,next) => {
 }
 
 const adminAuth = async(req,res,next) => {
-    const {token} = req.cookies;
-    if(!token){
+    const {adminToken} = req.cookies;
+    if(!adminToken){
         res.status(401).json({message:"No token ,please Login"});
         return;
     }
-    const decodedObj = jwt.verify(token,process.env.JWT_TOKEN);
+    const decodedObj = jwt.verify(adminToken,process.env.JWT_TOKEN);
     const {_id} =  decodedObj;
     const user = await User.findById(_id);
     if(!user){

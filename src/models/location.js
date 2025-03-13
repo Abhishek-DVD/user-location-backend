@@ -21,10 +21,16 @@ const locationSchema = new mongoose.Schema({
         type: Number // Optional, stores speed in m/s
     },
     deviceInfo: {
-        type: String 
+        browser: { type: String },
+        os: { type: String },
+        device: { type: String },
+        vendor: { type: String }
     },
     address: {
-        type: String 
+      country : {type:String},
+      state : {type:String},
+      city : {type:String},
+      postcode : {type:String},
     }
 },{
     timestamps:true,

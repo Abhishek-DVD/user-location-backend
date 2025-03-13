@@ -7,6 +7,7 @@ const cookieParser = require("cookie-parser");
 const locationRouter = require("./src/routes/location");
 const adminRouter = require("./src/routes/admin");
 const profileRouter = require("./src/routes/profile");
+const redisRouter = require("./src/routes/redisRoute");
 
 const app = express();
 dotenv.config();
@@ -19,10 +20,12 @@ app.use(cors({
 app.use(express.json());
 app.use(cookieParser());
 
+
 app.use("/",authRouter);
 app.use("/",locationRouter);
 app.use("/",adminRouter);
 app.use("/",profileRouter);
+// app.use("/",redisRouter);
 
 connectDb().then(()=>{
     console.log("Database connected.")

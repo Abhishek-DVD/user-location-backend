@@ -2,6 +2,7 @@ const express = require("express");
 const User = require("../models/user");
 const Location = require("../models/location");
 const { adminAuth } = require("../middlewares/auth");
+const redis = require("../utils/redisClient");
 const adminRouter = express.Router();
 
 adminRouter.get("/admin/users", adminAuth, async (req, res) => {
@@ -40,10 +41,17 @@ adminRouter.get("/admin/users", adminAuth, async (req, res) => {
     }
 });
 
-
+//getting the location of user by id
 adminRouter.get("/admin/user-location/:userId", adminAuth, async (req, res) => {
     try {
         const { userId } = req.params;
+        const redisKey = `userLocation:${userId}`;
+
+        const cachedLocation = await redis.get(redisKey);
+        if(cachedLocation){
+          console.log("serving from redis cache");
+          return res.json({message:"Location fetched from Redis cache",data:JSON.parse(cachedLocation)});
+        }
 
         // Find the latest location for the user
         const location = await Location.findOne({ userId });
@@ -52,6 +60,7 @@ adminRouter.get("/admin/user-location/:userId", adminAuth, async (req, res) => {
             return res.status(404).json({ message: "No location found for this user." });
         }
 
+        await redis.set(redisKey,JSON.stringify(location),"EX",10);
         res.json({ message: "Latest location fetched successfully", data: location });
     } catch (err) {
         res.status(500).json({ message: "Error fetching user location", error: err.message });
@@ -61,6 +70,14 @@ adminRouter.get("/admin/user-location/:userId", adminAuth, async (req, res) => {
 adminRouter.get("/admin/user/:userId", adminAuth, async (req, res) => {
     const { userId } = req.params;
   try {
+ 
+    const redisKey = `userData:${userId}`;
+    const cachedUser = await redis.get(redisKey);
+
+    if(cachedUser){
+      return res.json({message:"Serving from redis cache",data:JSON.parse(cachedUser)});
+    }
+
     const user = await User.findById(userId);
     if (!user) {
       return res.status(404).json({
@@ -68,6 +85,8 @@ adminRouter.get("/admin/user/:userId", adminAuth, async (req, res) => {
         message: "User not found.",
       });
     }
+
+    await redis.set(redisKey,JSON.stringify(user),"EX",10);
 
     res.status(200).json({
       success: true,
