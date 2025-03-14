@@ -17,6 +17,7 @@ authRouter.post("/signup",async (req,res)=>{
             lastName,
             emailId,
             password : passwordHash,
+            isOnline : true,
          })
 
          const savedUser = await user.save();
@@ -36,7 +37,7 @@ authRouter.post("/login",async(req,res)=>{
         validateLoginData(req);
         const {emailId,password} = req.body;
         
-        const user = await User.findOne({emailId:emailId});
+        const user = await User.findOneAndUpdate({emailId:emailId},{isOnline:true});
     
         if(!user){
             throw new Error("Invalid Credentials");
@@ -59,10 +60,11 @@ authRouter.post("/login",async(req,res)=>{
 //admin login
 authRouter.post("/admin/login",async(req,res)=>{
     try {
+
         validateLoginData(req);
         const {emailId,password} = req.body;
     
-        const user = await User.findOne({emailId:emailId});
+        const user = await User.findOneAndUpdate({emailId:emailId},{isOnline:true});
     
         if(!user){
             throw new Error("Invalid Credentials");
@@ -74,7 +76,6 @@ authRouter.post("/admin/login",async(req,res)=>{
         }
     
         if(!user.isAdmin) throw new Error("You dont have admin access");
-    
         const token = await user.getJWT();
     
         res.cookie("adminToken",token,{sameSite:"None",httpOnly:true,secure:true,expires: new Date(Date.now()+2*24*3600000)});
@@ -85,6 +86,8 @@ authRouter.post("/admin/login",async(req,res)=>{
 })
 
 authRouter.post("/logout",async(req,res)=>{
+    const {id} = req.query;
+    await User.findByIdAndUpdate(id,{isOnline:false});
     res.cookie("token",null,{
         expires:new Date(Date.now()),
     })
