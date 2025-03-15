@@ -5,6 +5,8 @@ const { adminAuth } = require("../middlewares/auth");
 const redis = require("../utils/redisClient");
 const adminRouter = express.Router();
 
+
+//getting all users 
 adminRouter.get("/admin/users", adminAuth, async (req, res) => {
     try {
         const adminUser = req.user;
